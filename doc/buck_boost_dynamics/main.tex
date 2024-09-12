@@ -9,6 +9,16 @@
 
 \section{Introduction}
 
+The purpose of this document is to keep track of buck and boost converters analysis needed to develop a ``battery bouncer''. This is a specific type of battery cycler designed to recirculate power among several batteries, with controlling converters arranged in a modular way.
+
+This idea stems from University of Parma project ``SPEED PARMA PoC--Strengthen Parma Patents' Effectiveness and further Expedite their Development through PoC projects'', devoted to the advancement of the Italian patent entitled ``Sistema per riscaldare una batteria o un pacco batterie, in particolare per impiego in veicoli elettrici'', originally deposited under number 102021000003269 and granted in date 22/02/2023.
+
+In this project, buck and boost converters reside, in reality, in the same hardware. In other words, the circuit includes two active switches and can behave as buck or boost depending on the direction of the desired power flow. Each module thus contains the filter inductor, two active switches, two filter capacitors (one on the input, one on the output), an input for the battery, and an output connection which allows to connect all the modules in parallel. This point of common coupling (PCC) ensures the possibility to exchange power among all the batteries (or even other types of supplies and loads), thus creating a highly flexible debug system. Obviously, also a control part is needed, and this is covered in this document.
+
+Before delving into the deeps of converter dynamic analysis it is worth mentioning two things.
+First, the common DC link (at the PCC) must have a voltage which is higher than the highest available battery voltage. This ensures that buck operation charges the cell (or battery) and boost operation discharges it. This means that the converter operation (and control) will be strictly related to the desired power flow.
+Second, it must be noted that power conservation must be respected anytime. This translates to the fact that given $N$ cells/batteries connected to one modular converter each, only $N-1$ of them will be effectively controlled in their current. The $N$-th cell will regulate the PCC voltage and thus will effectively guarantee power conservation. This point will fall in case another independent power source is connected to the PCC, e.g., a power supply.
+
 \section{Buck converter}
 \subsection{Converter model}
 \subsection{Control design}
