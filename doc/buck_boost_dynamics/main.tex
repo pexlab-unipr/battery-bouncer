@@ -1,4 +1,10 @@
 \documentclass{article}
+
+\usepackage{circuitikz}
+\usepackage{graphicx}
+\usepackage{cleveref}
+\usepackage{siunitx}
+
 \title{Buck and boost converters dynamics and control}
 \author{Alessandro Soldati}
 \date{12/09/2024}
@@ -19,7 +25,40 @@ Before delving into the deeps of converter dynamic analysis it is worth mentioni
 First, the common DC link (at the PCC) must have a voltage which is higher than the highest available battery voltage. This ensures that buck operation charges the cell (or battery) and boost operation discharges it. This means that the converter operation (and control) will be strictly related to the desired power flow.
 Second, it must be noted that power conservation must be respected anytime. This translates to the fact that given $N$ cells/batteries connected to one modular converter each, only $N-1$ of them will be effectively controlled in their current. The $N$-th cell will regulate the PCC voltage and thus will effectively guarantee power conservation. This point will fall in case another independent power source is connected to the PCC, e.g., a power supply.
 
+\begin{figure}[tb]
+    \centering
+    \begin{circuitikz}
+        \ctikzset{capacitors/width=0.1, capacitors/height=0.4, diodes/scale=0.6, resistors/scale=0.7}
+        \draw (0,0) to[battery2,v=$v_i$, invert] (0,2) to[R=$R_s$] (2,2) to[C=$C_i$] (2,0) -- (0,0);
+        \draw (2,2) to[L=$L$,i=$i_L$] (4,2) -- (4,1.75) node[nigfete,bodydiode,anchor=D]{$S_1$} -- (4,0) -- (2,0);
+        \draw (4,2) -- (4,2.25) node[nigfete,bodydiode,anchor=S]{$S_2$} -- (4,4) -- (6,4) to[C=$C_o$,v_<={$v_o=v_C$}] (6,0) -- (4,0);
+        \draw (6,4) to[short,-*] (6.5,4) node[right]{A};
+        \draw (6,0) to[short,-*] (6.5,0) node[right]{B};
+    \end{circuitikz}
+    \caption{The ideal schematic of one module of the battery bouncer.}
+    \label{fig:bouncer_schematic}
+\end{figure}
+
+The overall module ideal schematic is reported in \cref{fig:bouncer_schematic}. The terminals $A$ and $B$ represent the output port; all the output ports of the various modules are connected together, so that all their $C_o$ capacitors go in parallel to form the DC link capacitance at the PCC. Two active switches are needed, to achieve controlled operation with both power flow directions; additionally, they also allow to have synchronous rectification.
+
 \section{Buck converter}
+
+The converter module of \cref{fig:bouncer_schematic} works as a buck when power is transferred from the output port to the input one. This results in battery $v_i$ being charged, under the control of active switch $S_2$, while $S_1$ provides the freewheeling path (regardless if synchronous operation is envisioned or not). For the sake of the analysis, the bouncer module can be redesigned as in \cref{fig:buck_schematic}.
+
+\begin{figure}[tb]
+    \centering
+    \begin{circuitikz}
+        \ctikzset{capacitors/width=0.1, capacitors/height=0.4, diodes/scale=0.6, resistors/scale=0.7}
+        \draw (0,0) to[battery2,v=$v_i$, invert] (0,2) to[R=$R_i$] (2,2) to[C=$C_i$] (2,0) -- (0,0);
+        \draw (2,2) to[switch=$S$] (4,2) to[empty diode=$D$, invert] (4,0) -- (2,0);
+        \draw (4,2) to[L=$L$,i=$i_L$] (6,2) to[C=$C_o$] (6,0) -- (4,0);
+        \draw (6,2) -- (8,2) to[R=$R_o$] (8,0) -- (6,0);
+        \draw (8,2) -- (10,2) to[isource=$i_o$,v=$v_o$] (10,0) -- (8,0);
+    \end{circuitikz}
+    \caption{Schematic of the bouncer module in buck configuration, for the converter analysis.}
+    \label{fig:buck_schematic}
+\end{figure}
+
 \subsection{Converter model}
 \subsection{Control design}
 
