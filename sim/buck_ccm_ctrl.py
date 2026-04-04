@@ -44,7 +44,7 @@ ts = np.linspace(0, Tend, round(Tend/Tsim), endpoint=False)
 # Visualize open-loop system response with given input values
 out_step = ct.forced_response(buck_ccm, ts, np.array([Duty0, Io0])[:,np.newaxis] @ np.ones_like(ts)[np.newaxis,:])
 out_step.plot()
-plt.show()
+plt.show(block=False)
 
 # Create a PI transfer function
 ctrl = ct.tf([Kp, Ki], [1, 0], name='ctrl')
@@ -94,7 +94,7 @@ buck_ccm_cl = ct.ss(Aaug - Baug*K, np.array([0, 0, 1]).reshape(3,1), np.array([0
 ct.time_response_plot(buck_ccm_cl.step_response())
 plt.show(block=False)
 ct.bode_plot(buck_ccm_cl)
-plt.show()
+plt.show(block=False)
 
 # LQR controller on the AC component of the system
 # The idea is to follow a set-point given as steady-state and without the integral
@@ -104,10 +104,17 @@ A = np.array([[0, -1/Lx], [1/Cx, -Go/Cx]])
 B = np.array([[Vi0/Lx], [0]])
 C = np.identity(2)
 D = np.zeros((2, 1))
-Q = np.diag([1e-1, 1])
-R = 30
+Q = np.diag([1, 1])
+R = 100
 buck_ccm_duty_ac = ct.ss(A, B, C, D)
 K, S, E = ct.lqr(A, B, Q, R)
+print(K)
+print(S)
+print(E)
+
+# LQI ???
+Q = np.diag([1, 1e-3, 1e6])
+K, S, E = ct.lqr(Aaug, Baug, Q, R)
 print(K)
 print(S)
 print(E)
